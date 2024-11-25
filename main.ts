@@ -58,16 +58,27 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       const preference = await response.json();
+      const responseHeaders = new Headers();
+      responseHeaders.set("Content-Type", "application/json");
+      responseHeaders.set("Access-Control-Allow-Origin", "*"); // Permitir todas las solicitudes
+
       return new Response(JSON.stringify({ id: preference.id }), {
         status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: responseHeaders,
       });
     } catch (error) {
       console.error("Error al procesar la solicitud:", error);
       return new Response("Error al procesar la solicitud", { status: 500 });
     }
+  } else if (req.method === "OPTIONS") {
+    // Manejar preflight request para CORS
+    return new Response(null, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
   } else {
     return new Response("Not Found", { status: 404 });
   }
